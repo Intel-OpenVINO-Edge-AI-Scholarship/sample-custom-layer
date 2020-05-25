@@ -1,0 +1,56 @@
+<!--
+ Copyright (C) 2018-2019 Intel Corporation
+ SPDX-License-Identifier: Apache-2.0
+-->
+
+<!--
+// ===============================================================================
+// Generated file for Inference Engine extension for GPU plugin
+//
+// Contains configuration for the GPU layers
+// Should be placed near executable that will load and use it
+//
+// This configuration file should be manually loaded in the code **before loading
+// the model** that contains custom layers:
+//      1. Use IInferencePlugin::SetConfig() method with following pair:
+//          * PluginConfigParams::KEY_CONFIG_FILE
+//          * configuration file name
+//
+// Example:
+//      // Load clDNN (GPU) plugin
+//      InferenceEngine::InferenceEnginePluginPtr plugin_ptr(selectPlugin({..., "GPU"));
+//      InferencePlugin plugin(plugin_ptr);
+//      // Load clDNN Extensions
+//      plugin.SetConfig({{PluginConfigParams::KEY_CONFIG_FILE, "<path to the xml file>"}});
+//
+// You should fill :
+//     * Buffers section
+//       Add information about inputs/outputs
+//     * Define global worksize for your layer
+//
+// Refer to the section "Adding Your Own Kernels to the Inference Engine" in
+// OpenVINO* documentation (either online or offline in
+// <INSTALL_DIR>/deployment_tools/documentation/docs/index.html an then navigate
+// to the corresponding section).
+// ===============================================================================
+-->
+
+<CustomLayer name="pnorm" type="SimpleGPU" version="1">
+    <Kernel entry="pnorm_kernel">
+        <Source filename="pnorm_kernel.cl"/>
+        <!-- Parameters description /-->
+        <Define name="significant" type="int" param="significant" default="1"/>
+        <Define name="to_significant" type="int" param="to_significant" default="5"/>
+        <Define name="const_avg_ratio" type="float" param="const_avg_ratio" default="0.2"/>
+        <Define name="const_avg_ratio" type="int" param="p" default="-1"/>
+        <Define name="const_avg_ratio" type="int" param="group" default="1"/>
+    </Kernel>
+    <!-- Buffer descriptions /-->
+    <Buffers>
+        <Tensor arg-index="0" type="input" port-index="0"  format="BFYX"/>
+        <Tensor arg-index="1" type="output" port-index="0" format="BFYX"/>
+    </Buffers>
+  
+    <CompilerOptions options="-cl-mad-enable"/>
+    <WorkSizes dim="input" global="Y,X"/>
+</CustomLayer>
